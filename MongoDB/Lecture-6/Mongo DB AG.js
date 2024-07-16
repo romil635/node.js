@@ -1,140 +1,63 @@
-// Mongo DB Aggregation //
-//  Aggregation Operations Process Data Recods Are Return Computed Result Mongo DB Provides Three Ways To Perfrom Aggregation The Aggregation Pipeline .The Map-Reduce Function And Single - Purpose Aggregation Methods. 
+db.Book.find()
 
-// 1. $MATCH
-//-> This Is Filter Operation It Filters The Documents To Pass Only Document That Match The Specified Condition (S) To The Next Pipeline Stage.
-// EX:- 
-// Basic Filtering:
-db.collection.aggregate([
-    { $match: { status: "active" } }
-])
-//   Using Comparison Operators:
-db.collection.aggregate([
-    { $match: { age: { $gte: 18 } } }
-])
-//   Combining Conditions:
-db.collection.aggregate([
-    { $match: { $and: [{ status: "active" }, { age: { $gte: 18 } }] } }
-])
-//   Using $or:
-db.collection.aggregate([
-    { $match: { $or: [{ status: "inactive" }, { age: { $lt: 18 } }] } }
-])
+// aggregation pipeline => []
+ db.Book.find({"country" : "Italy", "language" : "Italian"})
 
-// 2. $PROJECT
-//-> This Is Operation Can Add New Field , Remove Existing Fields,Or Reshape A Document's Data.
-// EX:-
-// Basic Field Inclusion:
-db.collection.aggregate([
-    { $project: { _id: 0, name: 1 } }
-])
-//Field Exclusion:
-db.collection.aggregate([
-    { $project: { _id: 0, name: 1 } }
-])
-//Adding New Fields:
-db.collection.aggregate([
+db.Book.aggregate([
     {
-        $project: {
-            _id: 0, name: 1, age: {
-                $add: [{ $toInt: "$age" }, 1]
-            }
-        }
-    }
-])
-// Renaming Fields:
-db.collection.aggregate([
-    {
-        $project: {
-            _id: 0, name: 1, age: {
-                $add: [{ $toInt: "$age" }, 1]
-            }
-        }
-    }
-])
-//Creating Computed Fields:
-db.collection.aggregate([
-    {
-        $project: {
-            _id: 0, name: 1, age: {
-                $add: [{ $toInt: "$age" }, 1]
-            }
-        }
-    }
-])
-// Nested Fields:
-db.collection.aggregate([
-    {
-        $project: {
-            _id: 0, name: 1, age: {
-                $add: [{ $toInt: "$age" }, 1]
-            }
-        }
+        $match : {"country" : "Italy", "pages" : {$lt: 700}}
     }
 ])
 
 
-// 3. $LIMIT
-// This Operation Can Restricts The Numbar Of Documents That Can Through The Pipeline.
-// Syntax:
-// { $limit: <number> }
-// Example:
-//Basic Usage:
-db.collection.aggregate([
-    { $limit: 5 }
-])
-//Combining with $match:
-db.collection.aggregate([
-    { $match: { status: "active" } },
-    { $limit: 3 }
-])
-//Combining with $sort:  
-db.collection.aggregate([
+
+// --------- 3 type prticuler column show --------------------
+db.Book.find({} , {"author":1, _id:0, title:1 , "year":1})
+db.Book.find({}).select({"author":1, _id:0, title:1 })
+db.Book.find({}).project({year:1 , title:1})
+
+// -----------------------------------------------------------
+
+db.Book.aggregate([
+    // using Projection
     {
-        $sort: {
-            age: -1
+        $project:{
+            "author":1, "title":1 , "year" :1
         }
     },
-    { $limit: 3 }
+    {
+        $match : {"year" : {$lt : 1300}}
+    } 
+    ])
+
+
+// -------------------Sort-------------------
+db.Book.find({}).sort({year:1 , country:1})
+db.Book.aggregate([
+    {
+        $project:{
+            year:1, Title:1
+        }
+    },
+    {
+        $sort:{
+            year:1
+        }
+    }
+    ])
+
+
+// -----------Skip & limit-------------------
+db.Book.find({}).skip(5).limit(3)
+db.Book.aggregate([
+    {$limit:15},
+    {$skip: 10},
 ])
 
-// 4. $SORT
-// This Operation Can Sort The Documents In The Pipeline.
-// Syntax:
-// { $sort: { <field1>: <1| -1>, <field2>:
-// <1| -1>, ... } }
-// Example:
-// Basic Usage:
-db.collection.aggregate([
-    { $sort: { age: 1 } }
+// -------------Count------------------------
+db.Book.find({}).count()
+
+db.Book.aggregate([
+    {$match : {country: "Italy"}},
+    {$count : "country"}
     ])
-    // Combining with $limit:
-    db.collection.aggregate([
-        {
-            $sort: {
-                age: -1
-                }
-                },
-                { $limit: 3 }
-                ])
-                
-// 5. $UNWIND
-// 6. $GROUP
-// 7. $REDUCE
-// 8. $OUT
-// 9. $WITH
-// 10. $COUNT
-// 11. $SUM
-// 12. $AVG
-// 13. $MAX
-// 14. $MIN
-// 15. $STDDEV
-// 16. $STDDEVPOP
-// 17. $STDDEVSP
-// 18. $VARIANCE
-// 19. $VARIANCEPOP
-// 20. $VARIANCESP
-// 21. $TOLOWER
-
-
-
